@@ -13,13 +13,14 @@ class Builder:
 
 
 
-    def __init__(self, username, channel):
+    def __init__(self, user_id, channel, name='username'):
         self.channel = channel
-        self.username = username
+        self.user_id = user_id
         self.timestamp = time.time()
+        self.name = name
 
     def get_welcome(self):
-        REPLY_BLOCK['text']['text'] = 'Welcome to IT-bot channel, ' + self.username
+        REPLY_BLOCK['text']['text'] = 'Welcome to IT-bot channel, ' + self.user_id
         return {
             "ts" : self.timestamp,
             "channel" : self.channel,
