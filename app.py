@@ -7,7 +7,7 @@ from builder import Builder
 import  requests
 from urllib.parse import parse_qs
 from werkzeug.datastructures import ImmutableMultiDict
-from insperity import Insperity_commands
+from insperity.commands import Insperity_commands
 import ssl as ssl_lib
 import certifi
 from insperity.insperity import Insperity
@@ -32,21 +32,9 @@ def init_message(username, channel):
 
 @app.route('/insperity', methods=['POST'])
 def insperity(payload=''):
-    # print(type(request.form))
-    # # print('THIS IS FORM--------',json.loads(request.form))
     imd = ImmutableMultiDict(request.form)
     data = imd.to_dict()
-    # requests.post(data['response_url'],'200')
-    # print('THIS IS DATA +++++++++++', data)
-    # # data = json.loads(request.form["payload"])
-    # channel_id = data['channel_id']
     ins = Insperity(payload)
-    # print('THIS IS SITES================',ins.sites())
-    # slack_web_client.chat_postMessage(
-    #     channel=channel_id,
-    #     blocks = ins.sites()
-    #     )
-    print( data)
     return {
         "blocks" : ins.sites(),
         "response_type": "in_channel",
@@ -55,11 +43,9 @@ def insperity(payload=''):
 
 @app.route('/receive', methods=['POST'])
 def receive(payload='no payload'):
-    # data = json.loads(request.form["payload"])
     imd = ImmutableMultiDict(request.form)
     data = imd.to_dict()
     data = json.loads(data['payload'])
-    print("THIS IS DATA---------------", data)
     channel_id = data['container']['channel_id']
     user = data['user']['name']
     value = data['actions'][0]['value']
@@ -68,104 +54,30 @@ def receive(payload='no payload'):
     resp = {}
 
     ins = Insperity(data)
-    # if 'actions' in data:
-    # print('THIS IS VALUE=======', value)
-    # print('THIS IS ACTIONS======', data['actions'][0]['value'], ' = ', tmp_arr)
     if data['actions'][0]['text']['text'] == 'Reboot':
-        print('THIS IS SSH+++++++++++++++++++')
         ssh = Insperity_commands(value)
-        ssh.restart()
+        answer = ssh.restart()
         resp = {
-            "text" : 'Restart in progress',
-            # "blocks" : ins.custom_button('Reboot',value),
+            "text" : 'Restart may take a several minutes',
             "response_type": "in_channel"
         }
+        print('THIS IS DATA--==========',data)
         requests.post(data['response_url'],json=resp)
-    if value in ins.host_name():
-        # print('IF PASSED======================')
+
+    if value in ins.host_name(): #
         resp = {
             "blocks" : ins.custom_button('Reboot',value),
             "response_type": "in_channel"
         }
         requests.post(data['response_url'],json=resp)
-
     else:
-        # print('ELSE PASSED======================')
         resp =  {
-            # "channel" : channel_id,
             "blocks" : ins.site_clocks(data['actions'][0]['value']),
             "response_type": "in_channel"
         }
-        # requests.post('https://slack.com/api/chat.postMessage',json=resp)
         requests.post(data['response_url'],json=resp)
     return ''
 
-    # tmp_arr = ins.host_name(value)
-        # return json.jsonify(resp)
-        # slack_web_client.chat_postMessage(
-        #     channel=channel_id,
-        #     blocks = ins.site_clocks(data['actions'][0]['value'])
-        #     )
-        # event = ins.site_clocks(data['actions'][0]['value'])
-        #
-        # slack_web_client.chat_postMessage(
-        #     channel=channel_id,
-        #     blocks = event['blocks']
-        #     )
-        # print("THIS IS FORM -------------",request.form['payload'])
-        # print(type(request.form['payload']))
-        # dic = json.loads(request.form['payload'])
-    # print("THIS IS DIC----------->",dic['container']['channel_id'])
-    # for elem in dic:
-    #     print(dic[elem])
-    # print("THIS IS FORM ELEMENT -------------",type(json.loads(request.form['payload'])))
-    # print("THIS IS FORM ELEMENT SECOND-------------",json.loads(request.form['payload']['type']))
-    # print('THIS IS FORM-----------',ins.form)
-    # response_url = data['response_url']
-    # requests.post(response_url, json=event, headers=headers)
-    # post = requests.post(data['response_url'], json=response, headers=headers)
-    # print(post)
-    # response = slack_web_client.chat_postMessage(event)
-    # return event
-
-# @slack_events_adapter.on("")
-# def menu():w
-#     event = payload.get("event", {})
-#
-#     channel_id = event.get("channel")
-#     user_id = event.get("user")
-#     text = event.get("text")
-#
-#     b = Builder(username, channel)
-#
-#     if text and text.lower() == "menu":
-#             with open('result.json', 'a') as fp:
-#                 json.dump(payload, fp)
-#                 json.dump(',', fp)
-#             return init_message(user_id, channel_id)
-
-# @slack_events_adapter.on("team_join")
-# def onboarding_message(payload):
-#     event = payload.get("event", {})
-#     user_id = event.get('user')
-#     name = slack_web_client.users_info(user=user_id)
-#     channel = event.get('channel')
-#     init_message(user_id, channel, name)
-#
-# # TODO: filter bot messages so it-bot wouldn't repeat them infinitly.
-# @slack_events_adapter.on("message")
-# def any_message(payload):
-#     event = payload.get("event", {})
-#     username = event.get('user')
-#     channel = event.get('channel')
-#     text = event.get("text")
-#     name = slack_web_client.users_info(user=username)
-#     print(name)
-#     b = Builder(username, channel)
-#     message = b.get_reply(text, name['user']['real_name'])
-#     # if 'bot_id' not in event and 'name' in event['user'] != 'itbot':
-#     if 'name' in event['user'] != 'itbot':
-#         response = slack_web_client.chat_postMessage(**message)
 
 
 if __name__ == "__main__":

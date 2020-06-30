@@ -81,5 +81,29 @@ hosts = {
                 "vnc" : "vncviewer.exe -config vnc_conf/\\b_ret_2_104.vnc",
                 "description" : "Barnum Return 2"
             }
-                }
+                },
+    "hazelwood" : {
+        "h_ship_17" :
+            {
+                "host":"10.41.16.17",
+                "pass":"011190",
+                "vnc" : "vncviewer.exe -config vnc_conf/h_ship_17.vnc",
+                "description" : "Hazelwood Shipping"
+            },
+        "h_rec_20" :
+            {
+                "host":"10.41.16.20",
+                "pass":"011197",
+                "vnc" : "vncviewer.exe -config vnc_conf/h_rec_20.vnc",
+                "description" : "Hazelwood Receiving"
+            },
+        "h_prim_21" :
+            {
+                "host":"10.41.16.21",
+                "pass":"011193",
+                "vnc" : "vncviewer.exe -config vnc_conf/h_prim_21.vnc",
+                "description" : "Hazelwood Primary"
+            }
+                },
+
         }
